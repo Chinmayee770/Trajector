@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports & Export - Trajector</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/constellation-reports.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container-fluid">
+        <nav class="sidebar">
+            <div class="logo">
+                <i class="fas fa-satellite"></i>
+                <h1>Trajector</h1>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="../index.html"><i class="fas fa-th-large"></i> Dashboard</a></li>
+                <li><a href="visualization.html"><i class="fas fa-globe"></i> 3D Visualization</a></li>
+                <li><a href="conjunction-analysis.html"><i class="fas fa-exclamation-triangle"></i> Conjunctions</a></li>
+                <li><a href="maneuver-simulator.html"><i class="fas fa-rocket"></i> Maneuver Sim</a></li>
+                <li><a href="historical-replay.html"><i class="fas fa-history"></i> Replay</a></li>
+                <li><a href="model-comparison.html"><i class="fas fa-chart-bar"></i> Model Comparison</a></li>
+                <li><a href="reports.html" class="active"><i class="fas fa-file-export"></i> Reports</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-left">
+                    <h2>Reports & Export</h2>
+                    <p class="subtitle">Download Conjunction Analysis Reports</p>
+                </div>
+            </header>
+
+            <!-- Report Generation — 3 cards only -->
+            <section class="report-section">
+                <h3>Generate Reports</h3>
+                <div class="report-grid" style="grid-template-columns: repeat(3, 1fr);">
+                    <div class="report-card">
+                        <div class="report-icon pdf">
+                            <i class="fas fa-file-pdf"></i>
+                        </div>
+                        <h4>PDF Report</h4>
+                        <p>Professional report with risk summary, maneuver recommendations, and covariance analysis. Opens print dialog — save as PDF.</p>
+                        <button class="btn-primary" onclick="generatePDFReport()">
+                            <i class="fas fa-download"></i> Download PDF
+                        </button>
+                    </div>
+
+                    <div class="report-card">
+                        <div class="report-icon json">
+                            <i class="fas fa-file-code"></i>
+                        </div>
+                        <h4>JSON Export</h4>
+                        <p>Complete machine-readable JSON with all conjunction events, maneuver plans, and AI model metrics.</p>
+                        <button class="btn-primary" onclick="generateJSONReport()">
+                            <i class="fas fa-download"></i> Download JSON
+                        </button>
+                    </div>
+
+                    <div class="report-card">
+                        <div class="report-icon summary">
+                            <i class="fas fa-list"></i>
+                        </div>
+                        <h4>Executive Summary</h4>
+                        <p>Concise plain-text summary with key findings, risk status, and action items for decision makers.</p>
+                        <button class="btn-primary" onclick="generateSummaryReport()">
+                            <i class="fas fa-download"></i> Download Summary
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Report Customization -->
+            <section class="customization-section">
+                <h3>Report Customization</h3>
+                <div class="customization-panel">
+                    <div class="custom-group">
+                        <h4>Date Range</h4>
+                        <label>From: <input type="date" id="report-date-from" value="2026-05-01"></label>
+                        <label>To: <input type="date" id="report-date-to" value="2026-05-31"></label>
+                    </div>
+
+                    <div class="custom-group">
+                        <h4>Include Sections</h4>
+                        <label><input type="checkbox" id="inc-risk" checked> Risk Summary</label>
+                        <label><input type="checkbox" id="inc-maneuver" checked> Maneuver Recommendations</label>
+                        <label><input type="checkbox" id="inc-cov" checked> Covariance Analysis</label>
+                        <label><input type="checkbox" id="inc-ai" checked> AI Model Performance</label>
+                        <label><input type="checkbox" id="inc-hist"> Historical Comparison</label>
+                    </div>
+
+                    <div class="custom-group">
+                        <h4>Detail Level</h4>
+                        <select id="detail-level">
+                            <option value="executive">Executive Summary (1-2 pages)</option>
+                            <option value="standard" selected>Standard Report (5-10 pages)</option>
+                            <option value="detailed">Detailed Report (15-20 pages)</option>
+                        </select>
+                    </div>
+
+                    <button class="btn-primary" onclick="generatePDFReport()">
+                        <i class="fas fa-cogs"></i> Generate Custom PDF
+                    </button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../js/utils.js"></script>
+    <script src="../js/reports.js"></script>
+</body>
+</html>

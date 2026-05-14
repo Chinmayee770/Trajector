@@ -1,0 +1,13 @@
+[
+  {
+    "model":"XGBoost",
+    "MAE_km":0.2428379506,
+    "RMSE_km":0.5447012615,
+    "R2":0.9046521783,
+    "train_time_s":159.1381747723,
+    "optimizer":"gbm",
+    "lr":"-",
+    "hidden":0,
+    "seq_len":1
+  }
+]

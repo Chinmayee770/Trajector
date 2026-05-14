@@ -1,0 +1,519 @@
+/* Advanced 3D Visualization Styles */
+
+.visualization-container {
+    display: grid;
+    grid-template-columns: 1fr 320px 280px;
+    gap: 15px;
+    height: calc(100vh - 200px);
+    margin-top: 20px;
+}
+
+.canvas-container {
+    background: radial-gradient(ellipse at center, #000033 0%, #000066 100%);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.5);
+    width: 100%;
+    height: 100%;
+    min-height: 400px;
+}
+
+.canvas-container canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* Control Panel */
+.control-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 15px;
+    height: fit-content;
+    max-height: 100%;
+    overflow-y: auto;
+}
+
+.panel-section {
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.panel-section:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.panel-section h4 {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+    letter-spacing: 0.5px;
+}
+
+/* Satellite Search */
+.search-container {
+    margin-bottom: 10px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: #f8fafc;
+    color: var(--text-primary);
+    font-size: 13px;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(0, 86, 179, 0.2);
+}
+
+.search-input::placeholder {
+    color: var(--text-secondary);
+}
+
+/* Satellite List */
+.satellite-list {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: #f8fafc;
+}
+
+.satellite-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.satellite-item:last-child {
+    border-bottom: none;
+}
+
+.satellite-item:hover {
+    background: rgba(0, 86, 179, 0.2);
+}
+
+.satellite-item.selected {
+    background: rgba(0, 86, 179, 0.4);
+    border-left: 3px solid var(--primary-color);
+}
+
+.satellite-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+
+.satellite-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.satellite-name {
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.satellite-type {
+    font-size: 10px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.satellite-status {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+.altitude {
+    font-weight: 500;
+}
+
+/* Control Buttons */
+.control-btn {
+    background: rgba(0, 86, 179, 0.1);
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+}
+
+.control-btn:hover {
+    background: rgba(0, 86, 179, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 86, 179, 0.2);
+    transform: translateY(-1px);
+}
+
+.control-btn.active {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: var(--bg-dark);
+}
+
+.control-btn.full-width {
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 0;
+}
+
+/* Checkbox Labels */
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.checkbox-label input[type="checkbox"] {
+    margin: 0;
+}
+
+/* Speed Control */
+.speed-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.speed-control label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    min-width: 40px;
+}
+
+.speed-control input[type="range"] {
+    flex: 1;
+}
+
+#speed-value {
+    font-size: 12px;
+    color: var(--primary-color);
+    font-weight: 600;
+    min-width: 30px;
+    text-align: center;
+}
+
+/* Info Panel */
+.info-panel {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 15px;
+    height: fit-content;
+}
+
+.panel-header h4 {
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--primary-color);
+    margin-bottom: 15px;
+    letter-spacing: 0.5px;
+}
+
+.satellite-info {
+    color: var(--text-primary);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.satellite-details {
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.satellite-details:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.satellite-details h4 {
+    color: var(--primary-color);
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+.detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px 10px;
+    font-size: 12px;
+}
+
+.detail-grid span:nth-child(odd) {
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.detail-grid span:nth-child(even) {
+    color: var(--text-primary);
+    text-align: right;
+}
+
+/* HUD Overlay */
+.hud-overlay {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    right: 20px;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.hud-top, .hud-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.hud-bottom {
+    margin-bottom: 0;
+    margin-top: 10px;
+}
+
+.hud-item {
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid var(--primary-color);
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 12px;
+    color: var(--text-primary);
+    backdrop-filter: blur(5px);
+}
+
+.hud-label {
+    color: var(--text-secondary);
+    margin-right: 5px;
+}
+
+#hud-selected-count, #hud-fps, #hud-satellite-count {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+#hud-time {
+    font-family: 'Courier New', monospace;
+    color: var(--secondary-color);
+}
+
+/* Responsive Design */
+@media (max-width: 1400px) {
+    .visualization-container {
+        grid-template-columns: 1fr 300px;
+        grid-template-rows: 1fr auto;
+    }
+
+    .info-panel {
+        grid-column: 2;
+        grid-row: 2;
+        margin-top: 15px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .visualization-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr auto auto;
+    }
+
+    .control-panel, .info-panel {
+        grid-column: 1;
+    }
+
+    .control-panel {
+        grid-row: 2;
+    }
+
+    .info-panel {
+        grid-row: 3;
+    }
+}
+
+@media (max-width: 768px) {
+    .visualization-container {
+        height: calc(100vh - 250px);
+        gap: 10px;
+    }
+
+    .control-panel, .info-panel {
+        max-height: 200px;
+    }
+
+    .satellite-list {
+        max-height: 150px;
+    }
+
+    .hud-overlay {
+        top: 10px;
+        left: 10px;
+        right: 10px;
+    }
+
+    .hud-item {
+        padding: 3px 8px;
+        font-size: 11px;
+    }
+}
+
+/* Legend */
+.visualization-legend {
+    display: flex;
+    gap: 30px;
+    margin-top: 20px;
+    padding: 20px;
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+}
+
+.legend-section {
+    flex: 1;
+}
+
+.legend-section h4 {
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--primary-color);
+    margin-bottom: 15px;
+    letter-spacing: 0.5px;
+}
+
+.legend-items {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.legend-marker {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid var(--border-color);
+}
+
+.legend-marker.leo {
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+}
+
+.legend-marker.meo {
+    background: linear-gradient(45deg, #e74c3c, #c0392b);
+}
+
+.legend-marker.geo {
+    background: linear-gradient(45deg, #f39c12, #e67e22);
+}
+
+.legend-marker.critical {
+    background: linear-gradient(45deg, #e74c3c, #c0392b);
+    box-shadow: 0 0 8px rgba(231, 76, 60, 0.6);
+}
+
+.legend-marker.high {
+    background: linear-gradient(45deg, #f39c12, #e67e22);
+    box-shadow: 0 0 6px rgba(243, 156, 18, 0.5);
+}
+
+.legend-marker.medium {
+    background: linear-gradient(45deg, #f1c40f, #f39c12);
+    box-shadow: 0 0 4px rgba(241, 196, 15, 0.4);
+}
+
+.legend-marker.low {
+    background: linear-gradient(45deg, #27ae60, #2ecc71);
+    box-shadow: 0 0 2px rgba(39, 174, 96, 0.3);
+}
+
+/* Range input styling */
+.speed-control input[type="range"] {
+    flex: 1;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--border-color);
+    outline: none;
+    -webkit-appearance: none;
+}
+
+.speed-control input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    cursor: pointer;
+}
+
+.speed-control input[type="range"]::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    cursor: pointer;
+    border: none;
+}
+
+/* Satellite info panel in info-panel grid cell */
+#satellite-info {
+    background: #f8f9fa;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 10px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    max-height: 160px;
+    overflow-y: auto;
+}
+
+#satellite-info p { margin-bottom: 6px; }
+#satellite-info h4 { color: var(--primary-color); margin-bottom: 8px; font-size: 14px; }
+#satellite-info strong { color: var(--text-primary); }

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maneuver Simulator - Trajector</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/maneuver-simulator.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container-fluid">
+        <nav class="sidebar">
+            <div class="logo">
+                <i class="fas fa-satellite"></i>
+                <h1>Trajector</h1>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="../index.html"><i class="fas fa-th-large"></i> Dashboard</a></li>
+                <li><a href="visualization.html"><i class="fas fa-globe"></i> 3D Visualization</a></li>
+                <li><a href="conjunction-analysis.html"><i class="fas fa-exclamation-triangle"></i> Conjunctions</a></li>
+                <li><a href="maneuver-simulator.html" class="active"><i class="fas fa-rocket"></i> Maneuver Sim</a></li>
+                <li><a href="historical-replay.html"><i class="fas fa-history"></i> Replay</a></li>
+                <li><a href="model-comparison.html"><i class="fas fa-chart-bar"></i> Model Comparison</a></li>
+                <li><a href="reports.html"><i class="fas fa-file-export"></i> Reports</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-left">
+                    <h2>Maneuver Optimization Simulator</h2>
+                    <p class="subtitle">Interactive Trajectory & Fuel Optimization</p>
+                </div>
+            </header>
+
+            <div class="simulator-container">
+                <!-- Input Controls -->
+                <section class="input-panel">
+                    <h3>Maneuver Parameters</h3>
+
+                    <div class="control-group">
+                        <label>Conjunction Scenario</label>
+                        <select id="scenario-select" onchange="loadScenario(this.value)">
+                            <option value="iss-starlink">ISS ↔ STARLINK-1142 (CRITICAL)</option>
+                            <option value="noaa-sentinel">NOAA-18 ↔ SENTINEL-3B (HIGH)</option>
+                            <option value="himawari-debris">HIMAWARI-8 ↔ DEBRIS-39084 (MEDIUM)</option>
+                        </select>
+                    </div>
+
+                    <div class="control-group">
+                        <label>Burn Time (UTC)</label>
+                        <input type="datetime-local" id="burn-time" value="2026-05-15T10:15">
+                    </div>
+
+                    <div class="control-group">
+                        <label>ΔV Magnitude (m/s)</label>
+                        <input type="range" id="delta-v" min="0" max="1" step="0.01" value="0.42">
+                        <div class="value-display">
+                            <span id="delta-v-value">0.42</span> m/s
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <label>Maneuver Direction</label>
+                        <select id="maneuver-type">
+                            <option value="prograde">Prograde (Increase Altitude)</option>
+                            <option value="retrograde">Retrograde (Decrease Altitude)</option>
+                            <option value="normal">Normal (Inclination Change)</option>
+                            <option value="radial">Radial (Eccentricity)</option>
+                        </select>
+                    </div>
+
+                    <div class="control-group">
+                        <label>Fuel Available (kg)</label>
+                        <input type="number" id="fuel-available" value="500" min="0" max="2000" step="10">
+                    </div>
+
+                    <div class="control-group">
+                        <label>Optimization Goal</label>
+                        <select id="optimization-goal">
+                            <option value="risk">Minimize Risk</option>
+                            <option value="fuel">Minimize Fuel</option>
+                            <option value="balance">Balanced</option>
+                            <option value="altitude">Maintain Altitude</option>
+                        </select>
+                    </div>
+
+                    <div class="button-group">
+                        <button class="btn-secondary" id="btn-reset">
+                            <i class="fas fa-redo"></i> Reset
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Visualization & Results -->
+                <div class="results-area">
+                    <!-- Trajectory Visualization -->
+                    <section class="trajectory-viz">
+                        <h3>Trajectory Comparison</h3>
+                        <canvas id="trajectoryCanvas"></canvas>
+                        <div class="legend">
+                            <div class="legend-item">
+                                <div class="line before"></div>
+                                <span>Before Maneuver</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="line after"></div>
+                                <span>After Maneuver</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="line threat"></div>
+                                <span>Collision Threat Zone</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Results Panel -->
+                    <section class="results-panel">
+                        <h3>Simulation Results</h3>
+                        
+                        <div class="result-card before-after">
+                            <div class="result-column">
+                                <h4>Before Maneuver</h4>
+                                <div class="stat">
+                                    <span class="label">Collision Probability</span>
+                                    <span class="value critical">2.1 × 10⁻⁴</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="label">Miss Distance</span>
+                                    <span class="value">0.82 km</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="label">Orbital Altitude</span>
+                                    <span class="value">408 km</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="label">Time to TCA</span>
+                                    <span class="value">4h 23m</span>
+                                </div>
+                            </div>
+
+                            <div class="vs-separator">vs</div>
+
+                            <div class="result-column">
+                                <h4>After Maneuver</h4>
+                                <div class="stat">
+                                    <span class="label">Collision Probability</span>
+                                    <span class="value success">3.2 × 10⁻⁷</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="label">Miss Distance</span>
+                                    <span class="value">4.12 km</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="label">Orbital Altitude</span>
+                                    <span class="value">411.2 km</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="label">Time to TCA</span>
+                                    <span class="value">4h 27m</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="result-metrics">
+                            <div class="metric">
+                                <div class="metric-label">
+                                    <i class="fas fa-fire"></i>
+                                    Risk Reduction
+                                </div>
+                                <div class="metric-value">87%</div>
+                            </div>
+
+                            <div class="metric">
+                                <div class="metric-label">
+                                    <i class="fas fa-gas-pump"></i>
+                                    Fuel Required
+                                </div>
+                                <div class="metric-value">28 kg</div>
+                            </div>
+
+                            <div class="metric">
+                                <div class="metric-label">
+                                    <i class="fas fa-chart-line"></i>
+                                    Efficiency Score
+                                </div>
+                                <div class="metric-value">9.2/10</div>
+                            </div>
+
+                            <div class="metric">
+                                <div class="metric-label">
+                                    <i class="fas fa-clock"></i>
+                                    Execution Time
+                                </div>
+                                <div class="metric-value">245 sec</div>
+                            </div>
+                        </div>
+
+                        <div class="optimization-report">
+                            <h4>Optimization Analysis</h4>
+                            <div class="report-item">
+                                <span class="label">Optimization Status:</span>
+                                <span class="badge success">OPTIMAL</span>
+                            </div>
+                            <div class="report-item">
+                                <span class="label">Convergence:</span>
+                                <span>Achieved after 847 iterations</span>
+                            </div>
+                            <div class="report-item">
+                                <span class="label">Fuel Margin:</span>
+                                <span>472 kg available (94%)</span>
+                            </div>
+                            <div class="report-item">
+                                <span class="label">Recommendation:</span>
+                                <span class="success">APPROVE & EXECUTE</span>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+            <!-- Export & Actions -->
+            <section class="export-section">
+                <h3>Export & Execute</h3>
+                <div class="action-buttons">
+                    <button class="btn-primary" onclick="executeManeuver()">
+                        <i class="fas fa-rocket"></i> Execute Maneuver
+                    </button>
+                    <button class="btn-secondary" onclick="exportTrajectory()">
+                        <i class="fas fa-download"></i> Export Trajectory
+                    </button>
+                    <button class="btn-secondary" onclick="generateReport()">
+                        <i class="fas fa-file-pdf"></i> Generate Report
+                    </button>
+                    <button class="btn-secondary" onclick="shareSimulation()">
+                        <i class="fas fa-share-alt"></i> Share Results
+                    </button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../js/utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="../js/maneuver-simulator.js"></script>
+</body>
+</html>

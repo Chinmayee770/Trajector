@@ -207,3 +207,9 @@ marimo/_lsp/
 __marimo__/
 
 .env
+# Trajector runtime / large files — excluded from git
+data/
+preds/
+assessment_results/
+_build_docx.py
+*.docx

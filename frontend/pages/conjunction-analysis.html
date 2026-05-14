@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conjunction Analysis - Trajector</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/conjunction.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="logo">
+                <i class="fas fa-satellite"></i>
+                <h1>Trajector</h1>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="../index.html"><i class="fas fa-th-large"></i> Dashboard</a></li>
+                <li><a href="visualization.html"><i class="fas fa-globe"></i> 3D Visualization</a></li>
+                <li><a href="conjunction-analysis.html" class="active"><i class="fas fa-exclamation-triangle"></i> Conjunctions</a></li>
+                <li><a href="maneuver-simulator.html"><i class="fas fa-rocket"></i> Maneuver Sim</a></li>
+                <li><a href="historical-replay.html"><i class="fas fa-history"></i> Replay</a></li>
+                <li><a href="model-comparison.html"><i class="fas fa-chart-bar"></i> Model Comparison</a></li>
+                <li><a href="reports.html"><i class="fas fa-file-export"></i> Reports</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-left">
+                    <h2>Conjunction Assessment Panel (CARA)</h2>
+                    <p class="subtitle">Collision Risk Analysis and Assessment</p>
+                </div>
+            </header>
+
+            <!-- Satellite Pair Selection -->
+            <section class="selection-section">
+                <h3>Select Conjunction Event</h3>
+                <div class="conjunction-list">
+                    <div class="conjunction-item active" data-event="iss-starlink" onclick="selectConjunction(this)">
+                        <div class="item-header">
+                            <span class="pair-name">ISS ↔ STARLINK-1142</span>
+                            <span class="risk-badge critical">CRITICAL</span>
+                        </div>
+                        <div class="item-details">
+                            <span><strong>TCA:</strong> 2026-05-15 14:32:41 UTC</span>
+                            <span><strong>Pc:</strong> 2.1e-4</span>
+                            <span><strong>Miss Distance:</strong> 0.82 km</span>
+                        </div>
+                    </div>
+
+                    <div class="conjunction-item" data-event="noaa-sentinel" onclick="selectConjunction(this)">
+                        <div class="item-header">
+                            <span class="pair-name">NOAA-18 ↔ SENTINEL-3B</span>
+                            <span class="risk-badge high">HIGH</span>
+                        </div>
+                        <div class="item-details">
+                            <span><strong>TCA:</strong> 2026-05-16 09:15:22 UTC</span>
+                            <span><strong>Pc:</strong> 1.8e-5</span>
+                            <span><strong>Miss Distance:</strong> 2.47 km</span>
+                        </div>
+                    </div>
+
+                    <div class="conjunction-item" data-event="himawari-debris" onclick="selectConjunction(this)">
+                        <div class="item-header">
+                            <span class="pair-name">HIMAWARI-8 ↔ DEBRIS-39084</span>
+                            <span class="risk-badge medium">MEDIUM</span>
+                        </div>
+                        <div class="item-details">
+                            <span><strong>TCA:</strong> 2026-05-17 11:45:30 UTC</span>
+                            <span><strong>Pc:</strong> 8.3e-6</span>
+                            <span><strong>Miss Distance:</strong> 5.12 km</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Main Analysis Grid -->
+            <div class="analysis-grid">
+                <!-- Satellite Pair Information -->
+                <section class="analysis-card">
+                    <h3>Satellite Pair Information</h3>
+                    <div class="satellite-pair">
+                        <div class="satellite-box">
+                            <h4>Object A</h4>
+                            <p class="sat-name">ISS</p>
+                            <p class="sat-number">(NORAD: 25544)</p>
+                            <div class="sat-info">
+                                <div class="info-row">
+                                    <span>Altitude:</span>
+                                    <strong>408 km</strong>
+                                </div>
+                                <div class="info-row">
+                                    <span>Inclination:</span>
+                                    <strong>51.6°</strong>
+                                </div>
+                                <div class="info-row">
+                                    <span>Mass:</span>
+                                    <strong>420,000 kg</strong>
+                                </div>
+                                <div class="info-row">
+                                    <span>Period:</span>
+                                    <strong>90.2 min</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="vs-indicator">↔</div>
+
+                        <div class="satellite-box">
+                            <h4>Object B</h4>
+                            <p class="sat-name">STARLINK-1142</p>
+                            <p class="sat-number">(NORAD: 44713)</p>
+                            <div class="sat-info">
+                                <div class="info-row">
+                                    <span>Altitude:</span>
+                                    <strong>550 km</strong>
+                                </div>
+                                <div class="info-row">
+                                    <span>Inclination:</span>
+                                    <strong>53.0°</strong>
+                                </div>
+                                <div class="info-row">
+                                    <span>Mass:</span>
+                                    <strong>260 kg</strong>
+                                </div>
+                                <div class="info-row">
+                                    <span>Period:</span>
+                                    <strong>96.3 min</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Collision Risk Metrics -->
+                <section class="analysis-card">
+                    <h3>Collision Risk Metrics</h3>
+                    <div class="metrics-display">
+                        <div class="metric-item">
+                            <div class="metric-label">
+                                <i class="fas fa-target"></i>
+                                Miss Distance
+                            </div>
+                            <div class="metric-value critical">0.82 km</div>
+                            <div class="metric-detail">Below threshold of 10 km</div>
+                        </div>
+
+                        <div class="metric-item">
+                            <div class="metric-label">
+                                <i class="fas fa-random"></i>
+                                Relative Velocity
+                            </div>
+                            <div class="metric-value">13.2 km/s</div>
+                            <div class="metric-detail">High relative speed</div>
+                        </div>
+
+                        <div class="metric-item">
+                            <div class="metric-label">
+                                <i class="fas fa-bomb"></i>
+                                Collision Probability
+                            </div>
+                            <div class="metric-value critical">2.1 × 10⁻⁴</div>
+                            <div class="metric-detail">1 in 4,762 chance</div>
+                        </div>
+
+                        <div class="metric-item">
+                            <div class="metric-label">
+                                <i class="fas fa-clock"></i>
+                                Time to Conjunction
+                            </div>
+                            <div class="metric-value">4h 23m</div>
+                            <div class="metric-detail">Conjunction TCA soon</div>
+                        </div>
+
+                        <div class="metric-item">
+                            <div class="metric-label">
+                                <i class="fas fa-check-circle"></i>
+                                Uncertainty Volume
+                            </div>
+                            <div class="metric-value">245 km³</div>
+                            <div class="metric-detail">Covariance 3-sigma</div>
+                        </div>
+
+                        <div class="metric-item">
+                            <div class="metric-label">
+                                <i class="fas fa-exclamation-circle"></i>
+                                Risk Assessment
+                            </div>
+                            <div class="metric-value critical">ACTION REQUIRED</div>
+                            <div class="metric-detail">Recommend maneuver</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- DCA Timeline -->
+                <section class="analysis-card full-width">
+                    <h3>Distance & Collision Probability Timeline</h3>
+                    <div class="chart-container">
+                        <canvas id="dcaChart"></canvas>
+                    </div>
+                </section>
+
+                <!-- Covariance Visualization -->
+                <section class="analysis-card">
+                    <h3>Covariance Ellipsoids</h3>
+                    <div class="covariance-viz">
+                        <canvas id="covarianceCanvas"></canvas>
+                        <div class="cov-info">
+                            <p><strong>1-sigma overlap:</strong> YES</p>
+                            <p><strong>Covariance growth:</strong> Increasing</p>
+                            <p><strong>Uncertainty dimension:</strong> 0.245 km (1σ)</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Maneuver Recommendation -->
+                <section class="analysis-card">
+                    <h3>Recommended Maneuver</h3>
+                    <div class="maneuver-box">
+                        <div class="maneuver-summary">
+                            <div class="maneuver-item">
+                                <span class="label">Maneuver Type:</span>
+                                <span class="value">Prograde Burn (Raise Perigee)</span>
+                            </div>
+                            <div class="maneuver-item">
+                                <span class="label">Δv Required:</span>
+                                <span class="value highlight">0.42 m/s</span>
+                            </div>
+                            <div class="maneuver-item">
+                                <span class="label">Execution Time:</span>
+                                <span class="value">2026-05-15 10:15 UTC</span>
+                            </div>
+                            <div class="maneuver-item">
+                                <span class="label">Estimated Fuel:</span>
+                                <span class="value highlight">28 kg</span>
+                            </div>
+                        </div>
+                        <div class="maneuver-rationale">
+                            <h4>Maneuver Rationale</h4>
+                            <p>Performing a 0.42 m/s prograde burn will raise the ISS perigee by approximately 3 km, creating sufficient separation from STARLINK-1142's predicted trajectory at time of conjunction.</p>
+                            <ul>
+                                <li><strong>Predicted Pc after maneuver:</strong> 3.2 × 10⁻⁷</li>
+                                <li><strong>Risk reduction:</strong> 87%</li>
+                                <li><strong>Orbital altitude change:</strong> ±3.2 km</li>
+                                <li><strong>Duration of effect:</strong> 12+ days</li>
+                            </ul>
+                        </div>
+                        <button class="btn-primary" onclick="simulateManeuver()">
+                            <i class="fas fa-rocket"></i> Simulate Maneuver
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Confidence & Uncertainty -->
+                <section class="analysis-card">
+                    <h3>Prediction Confidence & Uncertainty</h3>
+                    <div class="confidence-metrics">
+                        <div class="confidence-item">
+                            <label>AI Model Confidence</label>
+                            <div class="confidence-bar">
+                                <div class="confidence-fill" style="width: 92%"></div>
+                            </div>
+                            <span class="confidence-value">92%</span>
+                        </div>
+                        <div class="confidence-item">
+                            <label>Prediction Reliability</label>
+                            <div class="confidence-bar">
+                                <div class="confidence-fill" style="width: 87%"></div>
+                            </div>
+                            <span class="confidence-value">87%</span>
+                        </div>
+                        <div class="confidence-item">
+                            <label>TLE Age Uncertainty</label>
+                            <div class="confidence-bar">
+                                <div class="confidence-fill" style="width: 45%; background: var(--warning-color);"></div>
+                            </div>
+                            <span class="confidence-value">45% (3 days old)</span>
+                        </div>
+                        <div class="confidence-item">
+                            <label>Atmospheric Model Confidence</label>
+                            <div class="confidence-bar">
+                                <div class="confidence-fill" style="width: 68%"></div>
+                            </div>
+                            <span class="confidence-value">68%</span>
+                        </div>
+                    </div>
+                    <p class="note"><i class="fas fa-info-circle"></i> Uncertainty ranges based on Monte Carlo analysis with 100,000 particles</p>
+                </section>
+            </div>
+
+            <!-- Export Section -->
+            <section class="export-section">
+                <h3>Export & Actions</h3>
+                <div class="action-buttons">
+                    <button class="btn-primary" onclick="exportCDM()">
+                        <i class="fas fa-download"></i> Export CDM
+                    </button>
+                    <button class="btn-secondary" onclick="exportJSON()">
+                        <i class="fas fa-file-json"></i> Export JSON
+                    </button>
+                    <button class="btn-secondary" onclick="generateReport()">
+                        <i class="fas fa-file-pdf"></i> Generate Report
+                    </button>
+                    <button class="btn-secondary" onclick="sharePrediction()">
+                        <i class="fas fa-share-alt"></i> Share
+                    </button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/conjunction-analysis.js"></script>
+</body>
+</html>

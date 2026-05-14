@@ -1,8 +1,8 @@
-# Calpurnia: Project Summary
+# Trajector: Project Summary
 
 ## Hackathon Submission Overview
 
-**Calpurnia** is a production-grade **Conjunction Assessment and Collision Avoidance (CARA)** system that combines orbital mechanics physics with artificial intelligence to protect satellites from collisions.
+**Trajector** is a production-grade **Conjunction Assessment and Collision Avoidance (CARA)** system that combines orbital mechanics physics with artificial intelligence to protect satellites from collisions.
 
 ---
 
@@ -142,7 +142,7 @@ Fuel cost: 0.68 kg from 6500 kg tank (0.01% usage).
 ## Code Structure
 
 ```
-Calpurnia/
+Trajector/
 ├── src/
 │   ├── physics/
 │   │   ├── converter.py          # SGP4 + TLE loading
@@ -278,7 +278,7 @@ Every recommendation includes a human-readable narrative explaining **why** a ma
 
 ## Conclusion
 
-Calpurnia demonstrates that **hybrid AI-Physics systems** can outperform either approach alone:
+Trajector demonstrates that **hybrid AI-Physics systems** can outperform either approach alone:
 
 - ✅ Physics (SGP4) for interpretability and speed
 - ✅ AI (LSTM) for residual correction and pattern learning

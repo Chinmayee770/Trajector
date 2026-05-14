@@ -1,0 +1,1166 @@
+// Advanced 3D Satellite Visualization System
+// Features: Realistic Earth, Multiple Satellites, Interactive Controls, Real-time Updates
+
+console.log('Script file loaded and executing');
+
+// Initialize the 3D visualization immediately
+(function() {
+    console.log('IIFE executing');
+    
+    // Add visible confirmation that script ran
+    const testDiv = document.createElement('div');
+    testDiv.innerHTML = '<h1 style="color: red; position: absolute; top: 10px; left: 10px; z-index: 1000; background: white;">SCRIPT RAN!</h1>';
+    document.body.appendChild(testDiv);
+    
+    console.log('Added test div');
+})();
+
+/**
+ * Initialize UI elements
+ */
+function initializeUI() {
+    satelliteList = document.getElementById('satellite-list');
+    satelliteSearch = document.getElementById('satellite-search');
+    satelliteInfo = document.getElementById('satellite-info');
+    cameraControls = document.querySelector('.camera-controls');
+    timeControls = document.querySelector('.time-controls');
+    layerControls = document.querySelector('.layer-controls');
+
+    // Create satellite list
+    updateSatelliteList();
+}
+
+/**
+ * Initialize Three.js scene with advanced settings
+ */
+function initializeScene() {
+    const container = document.getElementById('canvas-container');
+    console.log('Container element:', container);
+    console.log('Container dimensions:', container.clientWidth, 'x', container.clientHeight);
+
+    // Scene setup
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xffffff); // White background for debugging
+
+    // Camera setup
+    const width = Math.max(container.clientWidth, 800); // Minimum width
+    const height = Math.max(container.clientHeight, 600); // Minimum height
+    camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 200000);
+    camera.position.set(0, 0, 15000); // Moved closer for debugging
+    camera.lookAt(0, 0, 0); // Make sure camera looks at origin
+    
+    console.log('Camera initialized:', camera.position);
+
+    // Renderer setup with advanced features
+    renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: false,
+        powerPreference: "high-performance"
+    });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.2;
+    renderer.outputEncoding = THREE.sRGBEncoding;
+    container.appendChild(renderer.domElement);
+    
+    console.log('Renderer initialized:', renderer);
+    console.log('Canvas dimensions:', width, height);
+    console.log('Canvas element:', renderer.domElement);
+
+    // Orbit controls (temporarily disabled for debugging)
+    // controls = new THREE.OrbitControls(camera, renderer.domElement);
+    // controls.enableDamping = true;
+    // controls.dampingFactor = 0.05;
+    // controls.screenSpacePanning = false;
+    // controls.minDistance = 6500;
+    // controls.maxDistance = 100000;
+    // controls.maxPolarAngle = Math.PI;
+
+    // Lighting setup
+    setupLighting();
+
+    // Handle resize
+    window.addEventListener('resize', onWindowResize);
+}
+
+/**
+ * Setup advanced lighting system
+ */
+function setupLighting() {
+    // Sun light (directional for shadows)
+    const sunLight = new THREE.DirectionalLight(0xffffff, 1.5);
+    sunLight.position.set(100000, 0, 0);
+    sunLight.castShadow = true;
+    sunLight.shadow.mapSize.width = 2048;
+    sunLight.shadow.mapSize.height = 2048;
+    sunLight.shadow.camera.near = 50000;
+    sunLight.shadow.camera.far = 150000;
+    sunLight.shadow.camera.left = -50000;
+    sunLight.shadow.camera.right = 50000;
+    sunLight.shadow.camera.top = 50000;
+    sunLight.shadow.camera.bottom = -50000;
+    scene.add(sunLight);
+
+    // Ambient light for space
+    const ambientLight = new THREE.AmbientLight(0x404040, 0.2);
+    scene.add(ambientLight);
+
+    // Point light for Earth illumination
+    const earthLight = new THREE.PointLight(0xffffff, 0.5, 20000);
+    earthLight.position.set(0, 0, 0);
+    scene.add(earthLight);
+}
+
+/**
+ * Initialize post-processing effects
+ */
+function initializePostProcessing() {
+    composer = new THREE.EffectComposer(renderer);
+
+    const renderPass = new THREE.RenderPass(scene, camera);
+    composer.addPass(renderPass);
+
+    // Bloom effect for satellites and conjunctions
+    const bloomPass = new THREE.UnrealBloomPass(
+        new THREE.Vector2(window.innerWidth, window.innerHeight),
+        1.5, // strength
+        0.4, // radius
+        0.85 // threshold
+    );
+    composer.addPass(bloomPass);
+}
+
+/**
+ * Create realistic Earth with multiple layers
+ */
+function createEarth() {
+    const earthRadius = 10000; // Temporarily increased for debugging
+
+    // Earth geometry
+    const earthGeometry = new THREE.SphereGeometry(earthRadius, 32, 16);
+
+    // Simple solid color material for debugging
+    const earthMaterial = new THREE.MeshBasicMaterial({
+        color: 0x00ff00 // Bright green for visibility
+    });
+
+    earth = new THREE.Mesh(earthGeometry, earthMaterial);
+    scene.add(earth);
+    
+    console.log('Earth created with solid green material');
+    console.log('Earth position:', earth.position);
+    console.log('Earth visible:', earth.visible);
+    console.log('Scene children count:', scene.children.length);
+
+    // Skip atmosphere and clouds for now
+    // createAtmosphere();
+    // createClouds();
+}
+
+/**
+ * Create a simple Earth texture
+ */
+function createEarthTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 256;
+    const ctx = canvas.getContext('2d');
+
+    // Create a simple Earth-like appearance
+    const gradient = ctx.createLinearGradient(0, 0, 512, 256);
+    gradient.addColorStop(0, '#4A90E2'); // Ocean blue
+    gradient.addColorStop(0.4, '#228B22'); // Land green
+    gradient.addColorStop(0.7, '#F4A460'); // Desert tan
+    gradient.addColorStop(1, '#4A90E2'); // Ocean blue
+
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 512, 256);
+
+    // Add some continents
+    ctx.fillStyle = '#32CD32';
+    ctx.beginPath();
+    ctx.ellipse(150, 120, 80, 40, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.ellipse(350, 150, 60, 30, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    return new THREE.CanvasTexture(canvas);
+}
+
+/**
+ * Create atmospheric glow effect
+ */
+function createAtmosphere() {
+    const atmosphereGeometry = new THREE.SphereGeometry(6450, 32, 16);
+    const atmosphereMaterial = new THREE.MeshBasicMaterial({
+        color: 0x87CEEB,
+        transparent: true,
+        opacity: 0.1,
+        side: THREE.BackSide
+    });
+
+    atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
+    scene.add(atmosphere);
+}
+
+/**
+ * Create cloud layer
+ */
+function createClouds() {
+    const cloudsGeometry = new THREE.SphereGeometry(6380, 64, 32);
+    // Clouds texture (procedural)
+    const cloudsCanvas = document.createElement('canvas');
+    cloudsCanvas.width = 1024;
+    cloudsCanvas.height = 512;
+    const cloudsCtx = cloudsCanvas.getContext('2d');
+
+    cloudsCtx.fillStyle = 'rgba(255, 255, 255, 0)';
+    cloudsCtx.fillRect(0, 0, 1024, 512);
+
+    // Add cloud patterns
+    cloudsCtx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+    for (let i = 0; i < 50; i++) {
+        const x = Math.random() * 1024;
+        const y = Math.random() * 512;
+        const width = Math.random() * 200 + 50;
+        const height = Math.random() * 100 + 25;
+        cloudsCtx.beginPath();
+        cloudsCtx.ellipse(x, y, width, height, Math.random() * Math.PI, 0, Math.PI * 2);
+        cloudsCtx.fill();
+    }
+
+    const cloudsTexture = new THREE.CanvasTexture(cloudsCanvas);
+
+    const cloudsMaterial = new THREE.MeshPhongMaterial({
+        map: cloudsTexture,
+        transparent: true,
+        opacity: 0.4,
+        blending: THREE.AdditiveBlending
+    });
+
+    clouds = new THREE.Mesh(cloudsGeometry, cloudsMaterial);
+    scene.add(clouds);
+}
+
+/**
+ * Create starfield background
+ */
+function createStars() {
+    const starsGeometry = new THREE.BufferGeometry();
+    const starsCount = 5000;
+    const positions = new Float32Array(starsCount * 3);
+
+    for (let i = 0; i < starsCount * 3; i++) {
+        positions[i] = (Math.random() - 0.5) * 200000;
+    }
+
+    starsGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+    const starsMaterial = new THREE.PointsMaterial({
+        color: 0xffffff,
+        size: 2,
+        transparent: true,
+        opacity: 0.8
+    });
+
+    stars = new THREE.Points(starsGeometry, starsMaterial);
+    scene.add(stars);
+}
+
+/**
+ * Create satellites with realistic models
+ */
+function createSatellites() {
+    satelliteData.forEach(data => {
+        const satellite = createSatellite(data);
+        satellites.set(data.id, satellite);
+        scene.add(satellite.mesh);
+    });
+}
+
+/**
+ * Create individual satellite
+ */
+function createSatellite(data) {
+    const satellite = {
+        id: data.id,
+        name: data.name,
+        type: data.type,
+        altitude: data.altitude,
+        inclination: data.inclination,
+        color: data.color,
+        mesh: null,
+        label: null,
+        orbit: null,
+        velocity: 0,
+        fuel: Math.random() * 100,
+        conjunctionRisk: Math.random() * 0.001
+    };
+
+    // Create satellite geometry based on type
+    let geometry, material;
+
+    switch (data.type) {
+        case 'space_station':
+            geometry = new THREE.BoxGeometry(100, 50, 100);
+            material = new THREE.MeshPhongMaterial({ color: data.color, emissive: data.color, emissiveIntensity: 0.2 });
+            break;
+        case 'starlink':
+            geometry = new THREE.CylinderGeometry(5, 5, 20, 8);
+            material = new THREE.MeshPhongMaterial({ color: data.color, emissive: data.color, emissiveIntensity: 0.3 });
+            break;
+        case 'telescope':
+            geometry = new THREE.CylinderGeometry(10, 20, 40, 16);
+            material = new THREE.MeshPhongMaterial({ color: data.color, emissive: data.color, emissiveIntensity: 0.1 });
+            break;
+        default:
+            geometry = new THREE.SphereGeometry(8, 8, 8);
+            material = new THREE.MeshPhongMaterial({ color: data.color, emissive: data.color, emissiveIntensity: 0.2 });
+    }
+
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    mesh.userData = { satellite: satellite };
+
+    satellite.mesh = mesh;
+
+    // Create label
+    createSatelliteLabel(satellite);
+
+    // Assign orbit reference
+    satellite.orbit = orbits.get(data.id);
+
+    // Position satellite in orbit
+    updateSatellitePosition(satellite);
+
+    return satellite;
+}
+
+/**
+ * Create satellite label
+ */
+function createSatelliteLabel(satellite) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 64;
+    const ctx = canvas.getContext('2d');
+
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 16px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText(satellite.name, canvas.width / 2, 25);
+
+    ctx.font = '12px Arial';
+    ctx.fillText(`NORAD: ${satellite.id}`, canvas.width / 2, 45);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
+    const sprite = new THREE.Sprite(spriteMaterial);
+    sprite.scale.set(1000, 250, 1);
+    sprite.visible = false;
+
+    satellite.label = sprite;
+    scene.add(sprite);
+}
+
+/**
+ * Create orbital paths
+ */
+function createOrbits() {
+    satelliteData.forEach(data => {
+        const orbit = createOrbit(data);
+        orbits.set(data.id, orbit);
+        scene.add(orbit);
+    });
+}
+
+/**
+ * Create individual orbit path
+ */
+function createOrbit(data) {
+    const radius = 6371 + data.altitude;
+    const segments = 128;
+    const geometry = new THREE.RingGeometry(radius - 2, radius + 2, segments);
+    const material = new THREE.MeshBasicMaterial({
+        color: data.color,
+        transparent: true,
+        opacity: 0.3,
+        side: THREE.DoubleSide
+    });
+
+    const orbit = new THREE.Mesh(geometry, material);
+    orbit.rotation.x = THREE.MathUtils.degToRad(90 - data.inclination);
+
+    return orbit;
+}
+
+/**
+ * Update satellite position based on orbital mechanics
+ */
+function updateSatellitePosition(satellite) {
+    const time = simulationTime.getTime() / 1000; // seconds
+    const orbitalPeriod = calculateOrbitalPeriod(satellite.altitude);
+    const meanAnomaly = (2 * Math.PI * time) / orbitalPeriod;
+
+    // Simplified orbital calculation
+    const radius = 6371 + satellite.altitude;
+    const inclination = THREE.MathUtils.degToRad(satellite.inclination);
+
+    const x = radius * Math.cos(meanAnomaly);
+    const z = radius * Math.sin(meanAnomaly) * Math.cos(inclination);
+    const y = radius * Math.sin(meanAnomaly) * Math.sin(inclination);
+
+    satellite.mesh.position.set(x, y, z);
+
+    // Update label position
+    if (satellite.label) {
+        satellite.label.position.copy(satellite.mesh.position);
+        satellite.label.position.y += 200;
+    }
+
+    // Update velocity (simplified)
+    satellite.velocity = (2 * Math.PI * radius) / orbitalPeriod;
+}
+
+/**
+ * Calculate orbital period using Kepler's third law
+ */
+function calculateOrbitalPeriod(altitude) {
+    const radius = 6371 + altitude; // km
+    const mu = 3.986004418e5; // Earth's gravitational parameter
+    return 2 * Math.PI * Math.sqrt(Math.pow(radius * 1000, 3) / mu); // seconds
+}
+
+/**
+ * Initialize controls and event listeners
+ */
+function initializeControls() {
+    // Camera control buttons
+    document.getElementById('btn-zoom-in').addEventListener('click', () => {
+        camera.position.multiplyScalar(0.8);
+    });
+
+    document.getElementById('btn-zoom-out').addEventListener('click', () => {
+        camera.position.multiplyScalar(1.2);
+    });
+
+    document.getElementById('btn-rotate-reset').addEventListener('click', () => {
+        camera.position.set(0, 0, 30000);
+        controls.reset();
+    });
+
+    document.getElementById('btn-follow-satellite').addEventListener('click', () => {
+        if (selectedSatellites.size > 0) {
+            const selectedId = selectedSatellites.values().next().value;
+            followTarget = satellites.get(selectedId);
+            cameraMode = 'follow';
+        }
+    });
+
+    // Time controls
+    document.getElementById('time-speed').addEventListener('input', (e) => {
+        timeSpeedMultiplier = parseFloat(e.target.value);
+        document.getElementById('speed-value').textContent = `${timeSpeedMultiplier}x`;
+    });
+
+    document.getElementById('btn-play-pause').addEventListener('click', toggleSimulation);
+
+    // Layer controls
+    document.getElementById('layer-debris').addEventListener('change', updateLayers);
+    document.getElementById('layer-starlink').addEventListener('change', updateLayers);
+    document.getElementById('layer-iss').addEventListener('change', updateLayers);
+    document.getElementById('layer-conjunctions').addEventListener('change', updateLayers);
+    document.getElementById('layer-weather').addEventListener('change', updateLayers);
+    document.getElementById('layer-orbits').addEventListener('change', updateLayers);
+
+    // Additional camera controls
+    document.getElementById('btn-earth-view').addEventListener('click', () => {
+        cameraMode = 'earth';
+        followTarget = null;
+    });
+
+    document.getElementById('btn-reset-time').addEventListener('click', () => {
+        simulationTime = new Date();
+        updateTime();
+    });
+
+    // Mouse events for satellite selection
+    renderer.domElement.addEventListener('click', onSatelliteClick);
+    renderer.domElement.addEventListener('mousemove', onMouseMove);
+}
+
+/**
+ * Setup additional event listeners
+ */
+function setupEventListeners() {
+    // Satellite search
+    if (satelliteSearch) {
+        satelliteSearch.addEventListener('input', filterSatellites);
+    }
+
+    // Satellite list clicks
+    if (satelliteList) {
+        satelliteList.addEventListener('click', (e) => {
+            if (e.target.classList.contains('satellite-item')) {
+                const satelliteId = parseInt(e.target.dataset.id);
+                selectSatellite(satelliteId);
+            }
+        });
+    }
+}
+
+/**
+ * Handle satellite selection
+ */
+function selectSatellite(id) {
+    const satellite = satellites.get(id);
+    if (!satellite) return;
+
+    // Toggle selection
+    if (selectedSatellites.has(id)) {
+        selectedSatellites.delete(id);
+        satellite.mesh.material.emissiveIntensity = 0.2;
+        satellite.label.visible = false;
+    } else {
+        selectedSatellites.add(id);
+        satellite.mesh.material.emissiveIntensity = 0.8;
+        satellite.label.visible = true;
+    }
+
+    updateSatelliteInfo();
+    updateSatelliteList();
+}
+
+/**
+ * Handle mouse click on satellites
+ */
+function onSatelliteClick(event) {
+    const mouse = new THREE.Vector2();
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(mouse, camera);
+
+    const intersects = raycaster.intersectObjects(
+        Array.from(satellites.values()).map(s => s.mesh)
+    );
+
+    if (intersects.length > 0) {
+        const clickedSatellite = intersects[0].object.userData.satellite;
+        selectSatellite(clickedSatellite.id);
+    }
+}
+
+/**
+ * Handle mouse movement for hover effects
+ */
+function onMouseMove(event) {
+    const mouse = new THREE.Vector2();
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(mouse, camera);
+
+    const intersects = raycaster.intersectObjects(
+        Array.from(satellites.values()).map(s => s.mesh)
+    );
+
+    // Reset all hover effects
+    satellites.forEach(satellite => {
+        if (!selectedSatellites.has(satellite.id)) {
+            satellite.mesh.material.emissiveIntensity = 0.2;
+        }
+    });
+
+    if (intersects.length > 0) {
+        const hoveredSatellite = intersects[0].object.userData.satellite;
+        if (!selectedSatellites.has(hoveredSatellite.id)) {
+            hoveredSatellite.mesh.material.emissiveIntensity = 0.5;
+        }
+    }
+}
+
+/**
+ * Update satellite information panel
+ */
+function updateSatelliteInfo() {
+    if (!satelliteInfo) return;
+
+    if (selectedSatellites.size === 0) {
+        satelliteInfo.innerHTML = '<p>Select a satellite to view details</p>';
+        return;
+    }
+
+    const selectedIds = Array.from(selectedSatellites);
+    let html = '';
+
+    selectedIds.forEach(id => {
+        const satellite = satellites.get(id);
+        html += `
+            <div class="satellite-details">
+                <h4>${satellite.name}</h4>
+                <div class="detail-grid">
+                    <span>NORAD ID:</span><span>${satellite.id}</span>
+                    <span>Altitude:</span><span>${satellite.altitude} km</span>
+                    <span>Inclination:</span><span>${satellite.inclination}°</span>
+                    <span>Velocity:</span><span>${satellite.velocity.toFixed(2)} km/s</span>
+                    <span>Fuel:</span><span>${satellite.fuel.toFixed(1)}%</span>
+                    <span>Risk:</span><span>${satellite.conjunctionRisk.toExponential(2)}</span>
+                </div>
+            </div>
+        `;
+    });
+
+    satelliteInfo.innerHTML = html;
+}
+
+/**
+ * Update satellite list with selection status
+ */
+function updateSatelliteList() {
+    if (!satelliteList) return;
+
+    let html = '';
+    satellites.forEach(satellite => {
+        const isSelected = selectedSatellites.has(satellite.id);
+        html += `
+            <div class="satellite-item ${isSelected ? 'selected' : ''}" data-id="${satellite.id}">
+                <div class="satellite-color" style="background-color: #${satellite.color.toString(16)}"></div>
+                <div class="satellite-info">
+                    <div class="satellite-name">${satellite.name}</div>
+                    <div class="satellite-type">${satellite.type.replace('_', ' ').toUpperCase()}</div>
+                </div>
+                <div class="satellite-status">
+                    <span class="altitude">${satellite.altitude}km</span>
+                    ${isSelected ? '<i class="fas fa-check"></i>' : ''}
+                </div>
+            </div>
+        `;
+    });
+
+    satelliteList.innerHTML = html;
+}
+
+/**
+ * Filter satellites based on search
+ */
+function filterSatellites() {
+    const searchTerm = satelliteSearch.value.toLowerCase();
+    const items = satelliteList.querySelectorAll('.satellite-item');
+
+    items.forEach(item => {
+        const name = item.querySelector('.satellite-name').textContent.toLowerCase();
+        const type = item.querySelector('.satellite-type').textContent.toLowerCase();
+        const visible = name.includes(searchTerm) || type.includes(searchTerm);
+        item.style.display = visible ? 'flex' : 'none';
+    });
+}
+
+/**
+ * Toggle simulation play/pause
+ */
+function toggleSimulation() {
+    isSimulationRunning = !isSimulationRunning;
+    const button = document.getElementById('btn-play-pause');
+    const icon = button.querySelector('i');
+
+    if (isSimulationRunning) {
+        icon.className = 'fas fa-pause';
+        button.innerHTML = '<i class="fas fa-pause"></i> Pause';
+    } else {
+        icon.className = 'fas fa-play';
+        button.innerHTML = '<i class="fas fa-play"></i> Start';
+    }
+}
+
+/**
+ * Update layers visibility
+ */
+function updateLayers() {
+    const showDebris = document.getElementById('layer-debris').checked;
+    const showStarlink = document.getElementById('layer-starlink').checked;
+    const showISS = document.getElementById('layer-iss').checked;
+    const showConjunctions = document.getElementById('layer-conjunctions').checked;
+    const showWeather = document.getElementById('layer-weather').checked;
+    const showOrbits = document.getElementById('layer-orbits').checked;
+
+    satellites.forEach(satellite => {
+        let visible = true;
+
+        switch (satellite.type) {
+            case 'debris':
+                visible = showDebris;
+                break;
+            case 'starlink':
+                visible = showStarlink;
+                break;
+            case 'space_station':
+                visible = showISS;
+                break;
+        }
+
+        satellite.mesh.visible = visible;
+        if (satellite.orbit && orbits.has(satellite.id)) {
+            orbits.get(satellite.id).visible = visible && showOrbits;
+        }
+    });
+
+    if (clouds) clouds.visible = showWeather;
+    if (atmosphere) atmosphere.visible = showWeather;
+}
+
+/**
+ * Update HUD overlay
+ */
+function updateHUD() {
+    const hudSelectedCount = document.getElementById('hud-selected-count');
+    const hudTime = document.getElementById('hud-time');
+    const hudFps = document.getElementById('hud-fps');
+    const hudSatelliteCount = document.getElementById('hud-satellite-count');
+
+    if (hudSelectedCount) hudSelectedCount.textContent = selectedSatellites.size;
+    if (hudTime) hudTime.textContent = simulationTime.toLocaleTimeString();
+    if (hudSatelliteCount) hudSatelliteCount.textContent = satellites.size;
+
+    // Simple FPS counter (would be more accurate with performance.now())
+    if (hudFps) {
+        const fps = Math.round(1 / 0.016); // Approximate based on 60fps target
+        hudFps.textContent = fps;
+    }
+}
+
+/**
+ * Update camera based on mode
+ */
+function updateCamera() {
+    if (cameraMode === 'follow' && followTarget) {
+        const targetPosition = followTarget.mesh.position.clone();
+        const distance = 2000;
+        const offset = new THREE.Vector3(distance, distance * 0.5, distance);
+
+        camera.position.copy(targetPosition).add(offset);
+        camera.lookAt(targetPosition);
+    } else if (cameraMode === 'earth') {
+        camera.position.set(0, 0, 15000);
+        camera.lookAt(0, 0, 0);
+    }
+
+    // controls.update(); // Temporarily disabled
+}
+
+/**
+ * Animation loop
+ */
+function animate() {
+    requestAnimationFrame(animate);
+
+    const deltaTime = 0.016; // ~60fps
+
+    // Update simulation time
+    if (isSimulationRunning) {
+        simulationTime = new Date(simulationTime.getTime() + (deltaTime * 1000 * timeSpeedMultiplier));
+    }
+
+    // Rotate Earth
+    if (earth) {
+        earth.rotation.y += earthRotationSpeed * timeSpeedMultiplier;
+    }
+
+    // Rotate clouds
+    if (clouds) {
+        clouds.rotation.y += earthRotationSpeed * timeSpeedMultiplier * 1.1;
+    }
+
+    // Update satellites
+    satellites.forEach(satellite => {
+        updateSatellitePosition(satellite);
+    });
+
+    // Update camera
+    updateCamera();
+
+    // Update sun direction for day/night shader (removed for now)
+    // if (earth && earth.material.uniforms) {
+    //     const sunAngle = (simulationTime.getHours() / 24) * Math.PI * 2;
+    //     earth.material.uniforms.sunDirection.value.set(Math.cos(sunAngle), 0, Math.sin(sunAngle));
+    //     earth.material.uniforms.time.value = simulationTime.getTime() / 1000;
+    // }
+
+    // Render with post-processing (temporarily disabled for debugging)
+    // composer.render();
+    // console.log('Rendering frame...'); // Disabled to avoid spam
+    renderer.render(scene, camera);
+
+    // Update UI
+    updateSatelliteInfo();
+    updateHUD();
+}
+
+/**
+ * Start animation loop
+ */
+function startAnimation() {
+    animate();
+}
+
+/**
+ * Update time display
+ */
+function updateTime() {
+    const timeElement = document.getElementById('current-time');
+    if (timeElement) {
+        timeElement.textContent = simulationTime.toLocaleString();
+    }
+}
+
+/**
+ * Handle window resize
+ */
+function onWindowResize() {
+    const container = document.getElementById('canvas-container');
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+
+    renderer.setSize(width, height);
+    composer.setSize(width, height);
+}
+
+// Export functions for external use
+window.selectSatellite = selectSatellite;
+window.toggleSimulation = toggleSimulation;
+    const atmosphereMaterial = new THREE.MeshBasicMaterial({
+        color: 0x0080ff,
+        transparent: true,
+        opacity: 0.1,
+        side: THREE.BackSide
+    });
+    const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
+    scene.add(atmosphere);
+}
+
+/**
+ * Draw continent on canvas
+ */
+function drawContinent(ctx, x, y, width, height) {
+    ctx.beginPath();
+    ctx.ellipse(x, y, width, height, Math.random() * 0.3, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+/**
+ * Create sample satellites
+ */
+function createSampleSatellites() {
+    const satelliteData = [
+        { name: 'ISS', altitude: 408, color: 0x00ff00, orbital_period: 90, inclination: 51.6 },
+        { name: 'STARLINK-1', altitude: 550, color: 0x00d4ff, orbital_period: 96, inclination: 53 },
+        { name: 'STARLINK-2', altitude: 550, color: 0x00d4ff, orbital_period: 96, inclination: 53 },
+        { name: 'STARLINK-3', altitude: 550, color: 0x00d4ff, orbital_period: 96, inclination: 53 },
+        { name: 'NOAA-18', altitude: 705, color: 0xffaa00, orbital_period: 103, inclination: 99 },
+        { name: 'COPERNICUS', altitude: 786, color: 0xff6600, orbital_period: 108, inclination: 98.18 },
+    ];
+    
+    satelliteData.forEach((data, index) => {
+        const radius = 6371 + data.altitude;
+        
+        // Create orbital path
+        const orbitGeometry = new THREE.BufferGeometry();
+        const orbitPoints = [];
+        for (let i = 0; i <= 64; i++) {
+            const theta = (i / 64) * Math.PI * 2;
+            const inclination = data.inclination * Math.PI / 180;
+            const x = radius * Math.cos(theta);
+            const y = radius * Math.sin(theta) * Math.sin(inclination);
+            const z = radius * Math.sin(theta) * Math.cos(inclination);
+            orbitPoints.push(new THREE.Vector3(x, y, z));
+        }
+        orbitGeometry.setFromPoints(orbitPoints);
+        
+        const orbitMaterial = new THREE.LineBasicMaterial({
+            color: data.color,
+            transparent: true,
+            opacity: 0.3,
+            linewidth: 1
+        });
+        
+        const orbit = new THREE.Line(orbitGeometry, orbitMaterial);
+        scene.add(orbit);
+        orbits.push(orbit);
+        
+        // Create satellite
+        const satGeometry = new THREE.SphereGeometry(50, 8, 8);
+        const satMaterial = new THREE.MeshPhongMaterial({ color: data.color });
+        const satellite = new THREE.Mesh(satGeometry, satMaterial);
+        
+        // Add label to satellite
+        satellite.userData = {
+            name: data.name,
+            altitude: data.altitude,
+            period: data.orbital_period,
+            inclination: data.inclination,
+            position: 0,
+            radius: radius
+        };
+        
+        scene.add(satellite);
+        satellites.push(satellite);
+    });
+    
+    updateSatellitePositions();
+}
+
+/**
+ * Update satellite positions along orbits
+ */
+function updateSatellitePositions() {
+    satellites.forEach((sat, index) => {
+        const data = sat.userData;
+        const angle = (data.position * Math.PI * 2) % (Math.PI * 2);
+        const inclination = data.inclination * Math.PI / 180;
+        
+        sat.position.x = data.radius * Math.cos(angle);
+        sat.position.y = data.radius * Math.sin(angle) * Math.sin(inclination);
+        sat.position.z = data.radius * Math.sin(angle) * Math.cos(inclination);
+        
+        // Rotate satellite to face outward
+        sat.lookAt(0, 0, 0);
+        
+        // Update position along orbit
+        data.position = (data.position + 0.001 * simulationSpeed) % 1;
+    });
+}
+
+/**
+ * Create stars in background
+ */
+function createStars() {
+    const starsGeometry = new THREE.BufferGeometry();
+    const starsMaterial = new THREE.PointsMaterial({
+        color: 0xffffff,
+        size: 100,
+        transparent: true,
+        opacity: 0.8
+    });
+    
+    const starsVertices = [];
+    for (let i = 0; i < 2000; i++) {
+        const x = (Math.random() - 0.5) * 200000;
+        const y = (Math.random() - 0.5) * 200000;
+        const z = (Math.random() - 0.5) * 200000;
+        starsVertices.push(x, y, z);
+    }
+    
+    starsGeometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(starsVertices), 3));
+    const stars = new THREE.Points(starsGeometry, starsMaterial);
+    scene.add(stars);
+}
+
+/**
+ * Initialize interactive controls
+ */
+function initializeControls() {
+    // Zoom controls
+    document.getElementById('btn-zoom-in').addEventListener('click', () => {
+        camera.position.multiplyScalar(0.8);
+    });
+    
+    document.getElementById('btn-zoom-out').addEventListener('click', () => {
+        camera.position.multiplyScalar(1.2);
+    });
+    
+    document.getElementById('btn-rotate-reset').addEventListener('click', () => {
+        camera.position.set(0, 0, 30000);
+        camera.lookAt(0, 0, 0);
+    });
+    
+    document.getElementById('btn-follow-satellite').addEventListener('click', function() {
+        this.classList.toggle('active');
+        if (satellites.length > 0) {
+            selectedSatellite = this.classList.contains('active') ? satellites[0] : null;
+        }
+    });
+    
+    // Play/Pause
+    document.getElementById('btn-play-pause').addEventListener('click', function() {
+        isSimulationRunning = !isSimulationRunning;
+        this.textContent = isSimulationRunning ? '⏸ Pause' : '▶ Play';
+        this.innerHTML = `<i class="fas fa-${isSimulationRunning ? 'pause' : 'play'}"></i> ${isSimulationRunning ? 'Pause' : 'Start'}`;
+    });
+    
+    // Speed control
+    document.getElementById('time-speed').addEventListener('input', function() {
+        simulationSpeed = parseFloat(this.value);
+        document.getElementById('speed-value').textContent = simulationSpeed.toFixed(1) + 'x';
+    });
+    
+    // Info panel close
+    document.getElementById('close-info').addEventListener('click', function() {
+        this.closest('.info-panel').style.display = 'none';
+    });
+    
+    // Mouse interaction
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('click', onCanvasClick);
+    renderer.domElement.addEventListener('wheel', onMouseWheel);
+}
+
+/**
+ * Mouse move handling
+ */
+let raycaster = new THREE.Raycaster();
+let mouse = new THREE.Vector2();
+
+function onMouseMove(event) {
+    const rect = renderer.domElement.getBoundingClientRect();
+    mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+}
+
+/**
+ * Canvas click handling
+ */
+function onCanvasClick(event) {
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObjects(satellites);
+    
+    if (intersects.length > 0) {
+        const object = intersects[0].object;
+        displaySatelliteInfo(object);
+    }
+}
+
+/**
+ * Mouse wheel zoom
+ */
+function onMouseWheel(event) {
+    event.preventDefault();
+    const factor = event.deltaY > 0 ? 1.1 : 0.9;
+    camera.position.multiplyScalar(factor);
+}
+
+/**
+ * Display satellite information
+ */
+function displaySatelliteInfo(satellite) {
+    const data = satellite.userData;
+    const infoDiv = document.getElementById('satellite-info');
+    
+    infoDiv.innerHTML = `
+        <div class="info-row"><strong>${data.name}</strong></div>
+        <div class="info-row"><strong>Altitude:</strong> ${data.altitude} km</div>
+        <div class="info-row"><strong>Period:</strong> ${data.period} min</div>
+        <div class="info-row"><strong>Inclination:</strong> ${data.inclination}°</div>
+        <div class="info-row"><strong>Position:</strong> ${(data.position * 100).toFixed(1)}%</div>
+    `;
+}
+
+/**
+ * Initialize layer controls
+ */
+function initializeLayers() {
+    document.getElementById('layer-debris').addEventListener('change', (e) => {
+        // Toggle debris visualization
+    });
+    
+    document.getElementById('layer-starlink').addEventListener('change', (e) => {
+        satellites.forEach(sat => {
+            if (sat.userData.name.includes('STARLINK')) {
+                sat.visible = e.target.checked;
+            }
+        });
+    });
+    
+    document.getElementById('layer-iss').addEventListener('change', (e) => {
+        satellites.forEach(sat => {
+            if (sat.userData.name === 'ISS') {
+                sat.visible = e.target.checked;
+            }
+        });
+    });
+    
+    document.getElementById('layer-conjunctions').addEventListener('change', (e) => {
+        // Toggle conjunction visualization
+    });
+    
+    document.getElementById('layer-weather').addEventListener('change', (e) => {
+        // Toggle weather effects
+    });
+}
+
+/**
+ * Update time display
+ */
+function updateTime() {
+    const now = new Date();
+    document.getElementById('current-time').textContent = now.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        timeZone: 'UTC'
+    }) + ' UTC';
+    
+    if (isSimulationRunning) {
+        simulationTime = new Date(simulationTime.getTime() + simulationSpeed * 1000);
+        document.getElementById('stat-time').textContent = formatDate(simulationTime);
+    }
+}
+
+/**
+ * Handle window resize
+ */
+function onWindowResize() {
+    const container = document.getElementById('canvas-container');
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+    
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+    renderer.setSize(width, height);
+}
+
+/**
+ * Animation loop
+ */
+function startAnimation() {
+    function animate() {
+        requestAnimationFrame(animate);
+        
+        if (isSimulationRunning) {
+            updateSatellitePositions();
+        }
+        
+        // Rotate Earth
+        earth.rotation.y += 0.0001;
+        
+        // Follow satellite if selected
+        if (selectedSatellite) {
+            const offset = selectedSatellite.position.clone().normalize().multiplyScalar(15000);
+            camera.position.lerp(offset, 0.05);
+            camera.lookAt(selectedSatellite.position);
+        }
+        
+        // Update stats
+        document.getElementById('stat-satellites').textContent = satellites.length;
+        document.getElementById('stat-conjunctions').textContent = '2';
+        document.getElementById('stat-maneuvers').textContent = '1';
+        document.getElementById('stat-camera').textContent = 'Orbiting';
+        
+        renderer.render(scene, camera);
+    }
+    
+    animate();
+}

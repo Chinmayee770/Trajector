@@ -1,5 +1,5 @@
 """
-Unit Tests and Usage Examples for Calpurnia
+Unit Tests and Usage Examples for Trajector
 Demonstrates all major components with realistic scenarios
 """
 
@@ -357,7 +357,7 @@ def example_3_maneuver_planning():
 
 if __name__ == "__main__":
     print("\n" + "█"*60)
-    print("CALPURNIA: Unit Tests & Examples")
+    print("TRAJECTOR: Unit Tests & Examples")
     print("█"*60)
     
     # Run tests

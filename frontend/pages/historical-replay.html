@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historical Replay - Trajector</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/constellation-reports.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container-fluid">
+        <nav class="sidebar">
+            <div class="logo">
+                <i class="fas fa-satellite"></i>
+                <h1>Trajector</h1>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="../index.html"><i class="fas fa-th-large"></i> Dashboard</a></li>
+                <li><a href="visualization.html"><i class="fas fa-globe"></i> 3D Visualization</a></li>
+                <li><a href="conjunction-analysis.html"><i class="fas fa-exclamation-triangle"></i> Conjunctions</a></li>
+                <li><a href="maneuver-simulator.html"><i class="fas fa-rocket"></i> Maneuver Sim</a></li>
+                <li><a href="historical-replay.html" class="active"><i class="fas fa-history"></i> Replay</a></li>
+                <li><a href="model-comparison.html"><i class="fas fa-chart-bar"></i> Model Comparison</a></li>
+                <li><a href="reports.html"><i class="fas fa-file-export"></i> Reports</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-left">
+                    <h2>Historical Replay System</h2>
+                    <p class="subtitle">Playback Previous Conjunctions & Maneuver Decisions</p>
+                </div>
+            </header>
+
+            <!-- Replay Controls -->
+            <section class="replay-controls">
+                <h3>Select Event to Replay</h3>
+                <div class="controls-panel">
+                    <input type="date" id="replay-date" value="2026-05-10">
+                    <select id="event-select">
+                        <option value="">-- Select Event --</option>
+                        <option value="iss-starlink">ISS ↔ STARLINK-1142 (2026-05-15)</option>
+                        <option value="noaa-sentinel">NOAA-18 ↔ SENTINEL-3B (2026-05-16)</option>
+                        <option value="himawari-debris">HIMAWARI-8 ↔ Debris (2026-05-17)</option>
+                    </select>
+                    <button class="btn-primary" id="btn-play-replay">
+                        <i class="fas fa-play"></i> Play Replay
+                    </button>
+                </div>
+            </section>
+
+            <!-- Timeline Visualization -->
+            <section class="timeline-section">
+                <h3>Event Timeline</h3>
+                <div class="timeline">
+                    <div class="timeline-item past">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <h4>T-72h: Initial Detection</h4>
+                            <p>TLE data shows potential conjunction risk. Pc = 1.2e-5</p>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item past">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <h4>T-48h: Risk Assessment</h4>
+                            <p>Monte Carlo analysis. Pc increased to 2.8e-4. Action required.</p>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item past">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <h4>T-24h: Maneuver Planning</h4>
+                            <p>AI recommends 0.42 m/s prograde burn. Fuel analysis complete.</p>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item past">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <h4>T-4h: Maneuver Execution</h4>
+                            <p>Prograde burn executed. New Pc predicted: 3.2e-7</p>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item current">
+                        <div class="timeline-dot current"></div>
+                        <div class="timeline-content">
+                            <h4>TCA (Time of Closest Approach)</h4>
+                            <p>2026-05-15 14:32:41 UTC | Miss Distance: 4.12 km</p>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item future">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <h4>T+24h: Post-Event Analysis</h4>
+                            <p>Maneuver effectiveness confirmed. Conjunction successfully avoided.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Trajectory Animation -->
+            <section class="animation-section">
+                <h3>Trajectory Animation</h3>
+                <div class="animation-container">
+                    <canvas id="trajectoryAnimation"></canvas>
+                    <div class="animation-controls">
+                        <button class="btn-small" id="btn-anim-play">
+                            <i class="fas fa-play"></i> Play
+                        </button>
+                        <button class="btn-small" id="btn-anim-pause">
+                            <i class="fas fa-pause"></i> Pause
+                        </button>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-fill"></div>
+                        </div>
+                        <span id="anim-time">0:00</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Decision Review -->
+            <section class="decision-section">
+                <h3>Maneuver Decision Review</h3>
+                <div class="decision-grid">
+                    <div class="decision-card">
+                        <h4>AI Recommendation</h4>
+                        <div class="decision-content">
+                            <p><strong>Type:</strong> Prograde Burn</p>
+                            <p><strong>ΔV:</strong> 0.42 m/s</p>
+                            <p><strong>Burn Time:</strong> 2026-05-15 10:15 UTC</p>
+                            <p><strong>Expected Result:</strong> Pc → 3.2e-7 (87% reduction)</p>
+                            <p><strong>Confidence:</strong> 94%</p>
+                        </div>
+                    </div>
+
+                    <div class="decision-card">
+                        <h4>Ground Station Decision</h4>
+                        <div class="decision-content">
+                            <p><strong>Status:</strong> APPROVED</p>
+                            <p><strong>Decision Time:</strong> 2026-05-14 22:30 UTC</p>
+                            <p><strong>Approving Authority:</strong> Mission Control Houston</p>
+                            <p><strong>Review Notes:</strong> Maneuver deemed necessary. No conflicts with ISS operations.</p>
+                            <p><strong>Fuel Margin:</strong> 472 kg available</p>
+                        </div>
+                    </div>
+
+                    <div class="decision-card">
+                        <h4>Actual Outcome</h4>
+                        <div class="decision-content">
+                            <p><strong>Actual Pc:</strong> 2.1e-7</p>
+                            <p><strong>Miss Distance:</strong> 4.12 km</p>
+                            <p><strong>Maneuver Success:</strong> ✓ SUCCESSFUL</p>
+                            <p><strong>Fuel Used:</strong> 27 kg (within prediction)</p>
+                            <p><strong>Prediction Accuracy:</strong> 99.2%</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Historical Comparisons -->
+            <section class="comparison-section">
+                <h3>Historical Conjunction Events Comparison</h3>
+                <div class="comparison-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Objects</th>
+                                <th>Initial Pc</th>
+                                <th>Final Pc</th>
+                                <th>Maneuver</th>
+                                <th>Outcome</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="selected">
+                                <td>2026-05-15</td>
+                                <td>ISS / STARLINK-1142</td>
+                                <td>2.1e-4</td>
+                                <td>2.1e-7</td>
+                                <td>Prograde Burn (0.42 m/s)</td>
+                                <td><span class="badge success">AVOIDED</span></td>
+                            </tr>
+                            <tr>
+                                <td>2026-04-28</td>
+                                <td>NOAA-18 / SENTINEL-3B</td>
+                                <td>8.3e-5</td>
+                                <td>1.2e-6</td>
+                                <td>Normal Maneuver (0.18 m/s)</td>
+                                <td><span class="badge success">AVOIDED</span></td>
+                            </tr>
+                            <tr>
+                                <td>2026-04-10</td>
+                                <td>HIMAWARI-8 / Debris-39084</td>
+                                <td>3.2e-6</td>
+                                <td>3.2e-6</td>
+                                <td>No Maneuver (Low risk)</td>
+                                <td><span class="badge success">SAFE PASSAGE</span></td>
+                            </tr>
+                            <tr>
+                                <td>2026-03-15</td>
+                                <td>COPERNICUS / Debris-44713</td>
+                                <td>1.5e-4</td>
+                                <td>8.2e-6</td>
+                                <td>Retrograde Burn (0.58 m/s)</td>
+                                <td><span class="badge success">AVOIDED</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Export & Actions -->
+            <section class="export-section">
+                <h3>Export Replay Data</h3>
+                <div class="action-buttons">
+                    <button class="btn-primary" onclick="exportReplayData()">
+                        <i class="fas fa-download"></i> Export Replay
+                    </button>
+                    <button class="btn-secondary" onclick="generateAnalysisReport()">
+                        <i class="fas fa-file-pdf"></i> Generate Report
+                    </button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/historical-replay.js"></script>
+</body>
+</html>

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Visualization - Trajector</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/visualization.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- Sidebar Navigation (same as main) -->
+        <nav class="sidebar">
+            <div class="logo">
+                <i class="fas fa-satellite"></i>
+                <h1>Trajector</h1>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="../index.html"><i class="fas fa-th-large"></i> Dashboard</a></li>
+                <li><a href="visualization.html" class="active"><i class="fas fa-globe"></i> 3D Visualization</a></li>
+                <li><a href="conjunction-analysis.html"><i class="fas fa-exclamation-triangle"></i> Conjunctions</a></li>
+                <li><a href="maneuver-simulator.html"><i class="fas fa-rocket"></i> Maneuver Sim</a></li>
+                <li><a href="historical-replay.html"><i class="fas fa-history"></i> Replay</a></li>
+                <li><a href="model-comparison.html"><i class="fas fa-chart-bar"></i> Model Comparison</a></li>
+                <li><a href="reports.html"><i class="fas fa-file-export"></i> Reports</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-left">
+                    <h2>3D Orbit Visualization</h2>
+                    <p class="subtitle">Interactive Earth and Satellite Orbit Viewer</p>
+                </div>
+                <div class="header-right">
+                    <div class="time-display" id="current-time"></div>
+                </div>
+            </header>
+
+            <div class="visualization-container">
+                <!-- 3D Canvas -->
+                <div id="canvas-container" class="canvas-container"></div>
+
+                <!-- Control Panel -->
+                <div class="control-panel">
+                    <!-- Satellite Search and Selection -->
+                    <div class="panel-section">
+                        <h4>Satellite Selection</h4>
+                        <div class="search-container">
+                            <input type="text" id="satellite-search" placeholder="Search satellites..." class="search-input">
+                        </div>
+                        <div id="satellite-list" class="satellite-list">
+                            <!-- Satellite list will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Camera Controls -->
+                    <div class="panel-section">
+                        <h4>Camera Controls</h4>
+                        <button class="control-btn" id="btn-zoom-in" title="Zoom In">
+                            <i class="fas fa-search-plus"></i>
+                        </button>
+                        <button class="control-btn" id="btn-zoom-out" title="Zoom Out">
+                            <i class="fas fa-search-minus"></i>
+                        </button>
+                        <button class="control-btn" id="btn-rotate-reset" title="Reset View">
+                            <i class="fas fa-redo"></i>
+                        </button>
+                        <button class="control-btn" id="btn-follow-satellite" title="Follow Satellite">
+                            <i class="fas fa-crosshairs"></i>
+                        </button>
+                        <button class="control-btn" id="btn-earth-view" title="Earth View">
+                            <i class="fas fa-globe"></i>
+                        </button>
+                    </div>
+
+                    <!-- View Layers -->
+                    <div class="panel-section">
+                        <h4>View Layers</h4>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="layer-debris" checked>
+                            <span>Debris</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="layer-starlink" checked>
+                            <span>Starlink</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="layer-iss" checked>
+                            <span>ISS</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="layer-conjunctions" checked>
+                            <span>Conjunctions</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="layer-weather" unchecked>
+                            <span>Weather Effects</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="layer-orbits" checked>
+                            <span>Orbital Paths</span>
+                        </label>
+                    </div>
+
+                    <!-- Simulation Controls -->
+                    <div class="panel-section">
+                        <h4>Simulation</h4>
+                        <div class="speed-control">
+                            <label>Speed:</label>
+                            <input type="range" id="time-speed" min="0.1" max="100" value="1" step="0.1">
+                            <span id="speed-value">1x</span>
+                        </div>
+                        <button class="control-btn full-width" id="btn-play-pause">
+                            <i class="fas fa-play"></i> Start
+                        </button>
+                        <button class="control-btn full-width" id="btn-reset-time">
+                            <i class="fas fa-clock"></i> Reset Time
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Satellite Information Panel -->
+                <div class="info-panel">
+                    <div class="panel-header">
+                        <h4>Satellite Information</h4>
+                    </div>
+                    <div id="satellite-info" class="satellite-info">
+                        <p>Select a satellite to view details</p>
+                    </div>
+                </div>
+
+                <!-- HUD Overlay -->
+                <div class="hud-overlay">
+                    <div class="hud-top">
+                        <div class="hud-item">
+                            <span class="hud-label">Selected:</span>
+                            <span id="hud-selected-count">0</span>
+                        </div>
+                        <div class="hud-item">
+                            <span class="hud-label">Time:</span>
+                            <span id="hud-time">--:--:--</span>
+                        </div>
+                    </div>
+                    <div class="hud-bottom">
+                        <div class="hud-item">
+                            <span class="hud-label">FPS:</span>
+                            <span id="hud-fps">60</span>
+                        </div>
+                        <div class="hud-item">
+                            <span class="hud-label">Satellites:</span>
+                            <span id="hud-satellite-count">8</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Legend -->
+            <div class="visualization-legend">
+                <div class="legend-section">
+                    <h4>Orbit Types</h4>
+                    <div class="legend-items">
+                        <div class="legend-item">
+                            <div class="legend-marker leo"></div>
+                            <span>LEO (Low Earth Orbit)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-marker meo"></div>
+                            <span>MEO (Medium Earth Orbit)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-marker geo"></div>
+                            <span>GEO (Geostationary Orbit)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="legend-section">
+                    <h4>Risk Levels</h4>
+                    <div class="legend-items">
+                        <div class="legend-item">
+                            <div class="legend-marker critical"></div>
+                            <span>Critical Risk</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-marker high"></div>
+                            <span>High Risk</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-marker medium"></div>
+                            <span>Medium Risk</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-marker low"></div>
+                            <span>Low Risk</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- CesiumJS -->
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.115/Build/Cesium/Cesium.js"></script>
+    <link rel="stylesheet" href="https://cesium.com/downloads/cesiumjs/releases/1.115/Build/Cesium/Widgets/widgets.css">
+    <script src="../js/utils.js"></script>
+    <script src="../js/visualization-cesium.js"></script>
+</body>
+</html>

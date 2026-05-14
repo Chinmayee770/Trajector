@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trajector - Satellite Conjunction Assessment System</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="logo">
+                <i class="fas fa-satellite"></i>
+                <h1>Trajector</h1>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="active"><i class="fas fa-th-large"></i> Dashboard</a></li>
+                <li><a href="pages/visualization.html"><i class="fas fa-globe"></i> 3D Visualization</a></li>
+                <li><a href="pages/conjunction-analysis.html"><i class="fas fa-exclamation-triangle"></i> Conjunctions</a></li>
+                <li><a href="pages/maneuver-simulator.html"><i class="fas fa-rocket"></i> Maneuver Sim</a></li>
+                <li><a href="pages/historical-replay.html"><i class="fas fa-history"></i> Replay</a></li>
+                <li><a href="pages/model-comparison.html"><i class="fas fa-chart-bar"></i> Model Comparison</a></li>
+                <li><a href="pages/reports.html"><i class="fas fa-file-export"></i> Reports</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="top-header">
+                <div class="header-left">
+                    <h2>Mission Control Dashboard</h2>
+                    <p class="subtitle">Real-Time Satellite Monitoring & Conjunction Assessment</p>
+                </div>
+                <div class="header-right">
+                    <div class="time-display">
+                        <span id="current-time"></span>
+                    </div>
+                    <button class="btn-settings"><i class="fas fa-cog"></i></button>
+                </div>
+            </header>
+
+            <!-- Global Status Indicator -->
+            <div class="status-bar">
+                <div class="status-item" id="system-status">
+                    <span class="status-dot"></span>
+                    <span>System Status: Online</span>
+                </div>
+                <div class="status-item" id="alert-count">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>Active Alerts: <strong>3</strong></span>
+                </div>
+                <div class="status-item">
+                    <i class="fas fa-database"></i>
+                    <span>Last Update: <strong id="last-update">2 min ago</strong></span>
+                </div>
+                <div class="status-item">
+                    <span id="api-status-dot" style="width:8px;height:8px;border-radius:50%;display:inline-block;background:#f59e0b;margin-right:6px"></span>
+                    <span id="api-status-text">Connecting…</span>
+                </div>
+            </div>
+
+            <!-- Global Metrics Cards -->
+            <section class="metrics-section">
+                <h3>Global Metrics</h3>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-icon satellites">
+                            <i class="fas fa-satellite"></i>
+                        </div>
+                        <div class="metric-content">
+                            <h4>Total Satellites Tracked</h4>
+                            <p class="metric-value" id="total-satellites">2,847</p>
+                            <small>Active tracking</small>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-icon conjunctions">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                        <div class="metric-content">
+                            <h4>Active Conjunctions</h4>
+                            <p class="metric-value" id="active-conjunctions">12</p>
+                            <small>Next 7 days</small>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-icon high-risk">
+                            <i class="fas fa-fire"></i>
+                        </div>
+                        <div class="metric-content">
+                            <h4>High-Risk Events</h4>
+                            <p class="metric-value" id="high-risk-events">3</p>
+                            <small>Pc > 1e-4</small>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-icon collisions">
+                            <i class="fas fa-burst"></i>
+                        </div>
+                        <div class="metric-content">
+                            <h4>Predicted Collisions</h4>
+                            <p class="metric-value" id="predicted-collisions">1</p>
+                            <small>30 day window</small>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-icon maneuvers">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                        <div class="metric-content">
+                            <h4>Recommended Maneuvers</h4>
+                            <p class="metric-value" id="recommended-maneuvers">5</p>
+                            <small>Pending review</small>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- Risk Heatmap Section -->
+            <section class="heatmap-section">
+                <div class="heatmap-container">
+                    <h3>Conjunction Severity Heatmap</h3>
+                    <div class="heatmap-wrapper">
+                        <canvas id="riskHeatmap"></canvas>
+                        <div class="heatmap-legend">
+                            <div class="legend-item">
+                                <div class="legend-color critical"></div>
+                                <span>Critical (Pc > 1e-3)</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color high"></div>
+                                <span>High (1e-4 - 1e-3)</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color medium"></div>
+                                <span>Medium (1e-5 - 1e-4)</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color low"></div>
+                                <span>Low (< 1e-5)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Orbit Density Visualization -->
+                <div class="density-container">
+                    <h3>Orbit Density Distribution</h3>
+                    <div id="densityVisualization" class="density-viz"></div>
+                    <div class="density-labels">
+                        <span>LEO (200-2000 km)</span>
+                        <span>MEO (2000-35786 km)</span>
+                        <span>GEO (35786 km)</span>
+                        <span>HEO (> 35786 km)</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Real-Time Alert Feed -->
+            <section class="alerts-section">
+                <h3>Real-Time Alert Feed</h3>
+                <div class="alerts-container">
+                    <div class="alert alert-critical">
+                        <div class="alert-header">
+                            <span class="alert-level">CRITICAL</span>
+                            <span class="alert-time">2 minutes ago</span>
+                        </div>
+                        <h4>ISS ↔ STARLINK-1142 Conjunction Predicted</h4>
+                        <p><strong>Miss Distance:</strong> 0.82 km | <strong>Pc:</strong> 2.1e-4 | <strong>TCA:</strong> 2026-05-15 14:32:41 UTC</p>
+                        <div class="alert-actions">
+                            <button class="btn-small btn-primary">View Details</button>
+                            <button class="btn-small btn-secondary">Assess Risk</button>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-high">
+                        <div class="alert-header">
+                            <span class="alert-level">HIGH</span>
+                            <span class="alert-time">15 minutes ago</span>
+                        </div>
+                        <h4>NOAA-18 ↔ SENTINEL-3B Close Approach</h4>
+                        <p><strong>Miss Distance:</strong> 2.47 km | <strong>Pc:</strong> 1.8e-5 | <strong>TCA:</strong> 2026-05-16 09:15:22 UTC</p>
+                        <div class="alert-actions">
+                            <button class="btn-small btn-primary">View Details</button>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-medium">
+                        <div class="alert-header">
+                            <span class="alert-level">MEDIUM</span>
+                            <span class="alert-time">1 hour ago</span>
+                        </div>
+                        <h4>HIMAWARI-8 Potential Debris Encounter</h4>
+                        <p><strong>Miss Distance:</strong> 5.12 km | <strong>Pc:</strong> 8.3e-6 | <strong>Status:</strong> Monitoring</p>
+                        <div class="alert-actions">
+                            <button class="btn-small btn-secondary">Monitor</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quick Actions -->
+            <section class="actions-section">
+                <h3>Quick Actions</h3>
+                <div class="actions-grid">
+                    <button class="action-btn" onclick="window.location.href='pages/visualization.html'">
+                        <i class="fas fa-globe"></i>
+                        <span>View 3D Orbits</span>
+                    </button>
+                    <button class="action-btn" onclick="window.location.href='pages/conjunction-analysis.html'">
+                        <i class="fas fa-microscope"></i>
+                        <span>Analyze Conjunction</span>
+                    </button>
+                    <button class="action-btn" onclick="window.location.href='pages/maneuver-simulator.html'">
+                        <i class="fas fa-rocket"></i>
+                        <span>Simulate Maneuver</span>
+                    </button>
+                    <button class="action-btn" onclick="window.location.href='pages/reports.html'">
+                        <i class="fas fa-download"></i>
+                        <span>Generate Report</span>
+                    </button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

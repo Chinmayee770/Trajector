@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Comparison - Trajector</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/model-comparison.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container-fluid">
+        <nav class="sidebar">
+            <div class="logo">
+                <i class="fas fa-satellite"></i>
+                <h1>Trajector</h1>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="../index.html"><i class="fas fa-th-large"></i> Dashboard</a></li>
+                <li><a href="visualization.html"><i class="fas fa-globe"></i> 3D Visualization</a></li>
+                <li><a href="conjunction-analysis.html"><i class="fas fa-exclamation-triangle"></i> Conjunctions</a></li>
+                <li><a href="maneuver-simulator.html"><i class="fas fa-rocket"></i> Maneuver Sim</a></li>
+                <li><a href="historical-replay.html"><i class="fas fa-history"></i> Replay</a></li>
+                <li><a href="model-comparison.html" class="active"><i class="fas fa-chart-bar"></i> Model Comparison</a></li>
+                <li><a href="reports.html"><i class="fas fa-file-export"></i> Reports</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-left">
+                    <h2>Model Comparison Leaderboard</h2>
+                    <p class="subtitle">Trajectory Prediction Accuracy — All Models Benchmarked</p>
+                </div>
+                <div class="header-right">
+                    <div class="metric-toggle">
+                        <button class="toggle-btn active" data-metric="mae">MAE</button>
+                        <button class="toggle-btn" data-metric="rmse">RMSE</button>
+                        <button class="toggle-btn" data-metric="r2">R²</button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Best Model Banner -->
+            <div class="best-model-banner" id="best-model-banner">
+                <div class="best-model-icon"><i class="fas fa-trophy"></i></div>
+                <div class="best-model-info">
+                    <span class="best-label">Best Performing Model</span>
+                    <span class="best-name" id="best-model-name">ODE-KAN-Fusion</span>
+                    <span class="best-tag">★ Novel</span>
+                </div>
+                <div class="best-metrics" id="best-metrics">
+                    <div class="bm">
+                        <span class="bm-val" id="best-mae">—</span>
+                        <span class="bm-key">MAE (km)</span>
+                    </div>
+                    <div class="bm">
+                        <span class="bm-val" id="best-rmse">—</span>
+                        <span class="bm-key">RMSE (km)</span>
+                    </div>
+                    <div class="bm">
+                        <span class="bm-val" id="best-r2">—</span>
+                        <span class="bm-key">R²</span>
+                    </div>
+                </div>
+                <div class="best-desc">
+                    Lowest MAE across all baseline and novel models. Used for live predictions.
+                </div>
+            </div>
+
+            <!-- Primary Bar Chart (active metric) -->
+            <section class="chart-section">
+                <div class="chart-card chart-card--main">
+                    <div class="chart-header">
+                        <h3 id="main-chart-title">Mean Absolute Error — Lower is Better</h3>
+                        <div class="chart-legend">
+                            <span class="legend-dot novel"></span><span>Novel</span>
+                            <span class="legend-dot baseline"></span><span>Baseline</span>
+                            <span class="legend-dot best"></span><span>Best Model</span>
+                        </div>
+                    </div>
+                    <div class="chart-wrap chart-wrap--tall">
+                        <canvas id="mainChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Three metric charts side by side -->
+            <section class="chart-section chart-row">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>MAE per Axis (km)</h3>
+                        <span class="chart-note">X · Y · Z position error</span>
+                    </div>
+                    <div class="chart-wrap">
+                        <canvas id="axisChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>RMSE vs MAE</h3>
+                        <span class="chart-note">Error spread comparison</span>
+                    </div>
+                    <div class="chart-wrap">
+                        <canvas id="errorSpreadChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>R² Score</h3>
+                        <span class="chart-note">Higher is better (max 1.0)</span>
+                    </div>
+                    <div class="chart-wrap">
+                        <canvas id="r2Chart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Train Time chart -->
+            <section class="chart-section">
+                <div class="chart-card chart-card--main">
+                    <div class="chart-header">
+                        <h3>Training Time (seconds)</h3>
+                        <span class="chart-note">Lower = faster to deploy</span>
+                    </div>
+                    <div class="chart-wrap chart-wrap--medium">
+                        <canvas id="trainTimeChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Full metrics table -->
+            <section class="table-section">
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3>Full Metrics Table</h3>
+                        <span class="table-note">Ranked by MAE (ascending)</span>
+                    </div>
+                    <div class="table-wrap">
+                        <table id="metrics-table">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Model</th>
+                                    <th>Type</th>
+                                    <th class="sortable active" data-col="mae_km">MAE (km) ↑</th>
+                                    <th class="sortable" data-col="rmse_km">RMSE (km)</th>
+                                    <th class="sortable" data-col="r2">R²</th>
+                                    <th>Train Time (s)</th>
+                                    <th>MAE X</th>
+                                    <th>MAE Y</th>
+                                    <th>MAE Z</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../js/utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="../js/model-comparison.js"></script>
+</body>
+</html>

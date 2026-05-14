@@ -1,8 +1,8 @@
-# Calpurnia: Conjunction Assessment & Collision Avoidance System
+# Trajector: Conjunction Assessment & Collision Avoidance System
 
 ## Overview
 
-**Calpurnia** is a production-ready, hybrid AI-Physics orbital mechanics engine for satellite conjunction assessment and collision avoidance maneuver planning. It combines:
+**Trajector** is a production-ready, hybrid AI-Physics orbital mechanics engine for satellite conjunction assessment and collision avoidance maneuver planning. It combines:
 
 - **SGP4 Physics**: Simplified General Perturbations 4 algorithm for orbital propagation
 - **AI Correction**: LSTM neural networks to predict and correct SGP4 residual errors
@@ -381,4 +381,4 @@ For issues or questions:
 
 ---
 
-*Calpurnia: Named after Caesar's wife, a symbol of careful deliberation and foresight.*
+*Trajector: Named after Caesar's wife, a symbol of careful deliberation and foresight.*

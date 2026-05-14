@@ -1,4 +1,4 @@
-# Calpurnia API Reference & Quick Start
+# Trajector API Reference & Quick Start
 
 ## Quick Start: 30 Seconds
 

@@ -1,5 +1,5 @@
 """
-Calpurnia: Space Situational Awareness System
+Trajector: Space Situational Awareness System
 """
 
 import sys, os
@@ -20,7 +20,7 @@ def get_current_utc():
 
 def print_mission_header():
     print("\n" + "="*80)
-    print("CALPURNIA | Space Situational Awareness v1.0")
+    print("TRAJECTOR | Space Situational Awareness v1.0")
     print("="*80)
 
 def print_environment_section(space_weather):
